@@ -1,0 +1,259 @@
+"A datetime string with format `Y-m-d H:i:s`, e.g. `2018-01-01 13:00:00`."
+scalar DateTime @scalar(class: "Nuwave\\Lighthouse\\Schema\\Types\\Scalars\\DateTime")
+"A date string with format `Y-m-d`, e.g. `2011-05-23`."
+scalar Date @scalar(class: "Nuwave\\Lighthouse\\Schema\\Types\\Scalars\\Date")
+
+type Query {
+    test(id: ID @eq): User @find(model: "App\\Models\\User") @middleware(checks: ["auth:api"])
+
+
+    getSpecialties: [Specialty] @all
+    getProfessions: [Profession] @all
+
+    GetEventStatus(slug: String): Event
+
+    EventExists(
+        slug: String!
+    ): Event 
+
+    GetEventBySlug(
+        slug: String!
+    ):Event
+
+
+    GetNextEvent(
+        event_slug: String!
+    ):Event
+
+    #chat
+    MessagesByEvent( event_id: Int!): [Message] @middleware(checks: ["auth:api"])
+    ReadedFilterer(event_id: ID): [Message!]! @middleware(checks: ["auth:api"])
+    ReadedSupport(event_id: ID ): [Message!]! @middleware(checks: ["auth:api"])
+    messagesForSupport(orderBy: [OrderByClause!] @orderBy  event_id: ID @where has_support: Int @where to_message: String @where): [Message!]! @all @middleware(checks: ["auth:api"])
+    messagesForFilterer(orderBy: [OrderByClause!] @orderBy event_id: ID @where has_support: Boolean @where to_speaker: Boolean @where to_user: ID @where to_message: ID @where mark_read: Boolean @where ): [Message] @all @middleware(checks: ["auth:api"])
+    #MessagesForFilterer(event_id: ID!): [Message] @guard
+    messagesForSpeaker( orderBy: [OrderByClause!] @orderBy event_id: ID @where to_speaker: Int @where mark_read: Int @where ): [Message!]! @all
+    #chat
+
+    GetCurrentEvent: Event
+
+
+    HasAnsweredExam(
+        event_id: ID!
+        question_type: String!
+    ): Boolean @middleware(checks: ["auth:api"])
+
+
+    GetVodEvents(
+        current_event_id: ID!
+    ): [Event]
+    
+}
+
+type Mutation {
+
+    Login(
+        email: String!
+        #password: String!
+    ): AuthResponse! @field(resolver: "Login")
+
+    #3
+    Register(
+        name: String!
+        last_name: String!
+        email: String!
+
+        email_confirmation: String!
+
+        profession_id: Int!
+        specialty_id: Int!
+
+        license: String!
+        phone: String!
+
+        agree_terms: Boolean!
+        agree_privacy: Boolean
+
+        ): AuthResponse! @field(resolver: "Register") @RegisterValidation
+
+    #refreshToken(input: RefreshTokenInput @spread): AuthPayload! @field(resolver: "Joselfonseca\\LighthouseGraphQLPassport\\GraphQL\\Mutations\\RefreshToken@resolve")
+    logout: LogoutResponse! @field(resolver: "Joselfonseca\\LighthouseGraphQLPassport\\GraphQL\\Mutations\\Logout@resolve")
+    #forgotPassword(input: ForgotPasswordInput! @spread): ForgotPasswordResponse! @field(resolver: "Joselfonseca\\LighthouseGraphQLPassport\\GraphQL\\Mutations\\ForgotPassword@resolve")
+    #updateForgottenPassword(input: NewPasswordWithCodeInput! @spread): ForgotPasswordResponse! @field(resolver: "Joselfonseca\\LighthouseGraphQLPassport\\GraphQL\\Mutations\\ResetPassword@resolve")
+    #register(input: RegisterInput @spread): AuthPayload! @field(resolver: "Joselfonseca\\LighthouseGraphQLPassport\\GraphQL\\Mutations\\Register@resolve")
+
+    CreateTracking(
+        event_id: Int!
+        status: String!
+    ): Boolean @field(resolver: "CreateTracking") @middleware(checks: ["auth:api"])
+
+    UpdateLiveAccumulatedTime (
+        event_id: ID!
+        milliseconds: Int!
+    ):Boolean @field(resolver: "UpdateLiveAccumulatedTime") @middleware(checks: ["auth:api"])
+
+    UpdateVODAccumulatedTime (
+        event_id: ID!
+        seeked: Boolean!
+        milliseconds: Int!
+        progress_time: Int!
+        video_duration: Int!
+    ):Boolean @field(resolver: "UpdateVODAccumulatedTime") @middleware(checks: ["auth:api"])
+
+
+
+    MarkAnsweredExam(
+        event_id: ID!
+        question_type: String!
+    ): Boolean @middleware(checks: ["auth:api"])
+
+
+
+    #CHAT
+    SendToFilterer(
+        message: String!
+        event_id: String!
+    ):Message @field(resolver: "Chat@toFilterer") @middleware(checks: ["auth:api"])
+
+    SendToSupport(
+        message_id: String!
+        user_id: String!
+    ):Message @field(resolver: "Chat@toSupport") @middleware(checks: ["auth:api"])
+
+    SendToSpeaker(
+        message_id: String!
+        user_id: String!
+    ):Message @field(resolver: "Chat@toSpeaker") @middleware(checks: ["auth:api"])
+
+    SendToUser(
+        event_id: String!
+        message: String!
+        to_user_id: String!
+        message_id: String!
+    ):Message @field(resolver: "Chat@toUser") @middleware(checks: ["auth:api"])
+
+    MarkAsRead(
+        message_id:String!
+    ):Message @field(resolver: "MarkAsRead") @middleware(checks: ["auth:api"])
+    #CHAT
+
+}
+
+input OrderByClause{
+    field: String!
+    order: SortOrder!
+}
+enum SortOrder {
+    ASC
+    DESC
+}
+
+
+type User {
+    id: ID!
+    name: String!
+    last_name: String
+    email: String!
+
+    profession_id: Int
+    specialty_id: Int
+
+    license: String
+    phone: String
+
+    role: Int
+
+    specialty: Specialty @belongsTo
+    profession: Profession @belongsTo
+    trackings: [Tracking] @hasMany
+
+    messages: [Message] @hasMany
+}
+
+type Specialty {
+    id: ID!
+    name: String!
+
+    user:[User] @hasMany
+}
+
+type Profession {
+    id: ID!
+    name: String!
+
+    user:[User] @hasMany
+}
+
+
+type Question {
+    id: ID!
+    exam_start: Boolean
+    exam_start_datetime: DateTime
+    exam_finished: Boolean
+    exam_finished_datetime: DateTime
+    survey: Boolean
+    survey_datetime: DateTime
+}
+
+type Tracking {
+    id: ID!
+
+    accumulated_time: DateTime
+    progress_time: DateTime
+    video_duration: DateTime
+    percentage: Int
+    has_ended: Boolean
+    status: String
+
+    played_at: DateTime
+
+    OS: String
+    device: String
+    browser: String
+
+    created_at: DateTime!
+    updated_at: DateTime!
+
+    user: User @belongsTo
+    event: Event @belongsTo
+}
+
+type Event {
+    id: ID!
+    title: String!
+    slug: String!
+    description: String!
+    event_date: DateTime!
+    playback_id: String!
+    translated_playback_id: String
+    publish: Boolean!
+    thumbnail: String
+    status: String!
+    duration: Int
+    survey_typeform_id: String
+    exam_typeform_id: String
+
+    created_at: DateTime!
+    updated_at: DateTime!
+
+    trackings: [Tracking] @hasMany
+    
+    messages: [Message] @hasMany
+}
+
+
+type Message {
+    id: ID!
+    message: String!
+    has_support: Boolean
+    mark_read: Boolean
+    to_speaker: Boolean
+
+    to_user: Int
+
+    created_at: DateTime
+    updated_at: DateTime
+
+    user: User! @belongsTo
+    event: Event! @belongsTo
+}

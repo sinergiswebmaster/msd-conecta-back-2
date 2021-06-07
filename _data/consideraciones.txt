@@ -1,0 +1,27 @@
+-No cambiar un evento de vod a live, mejor crear otro row en la table evento
+-En eventos tener un solo evento con redirect 1
+-en los eventos vod poner la duracion verdadera porque sirve para sacar el porcentaje
+-poner en publish 1
+
+
+
+
+-DUDA: sobre los redirects automaticos a vod
+-Vista vod
+
+17 abril: a68qpL66
+23 abril: RLEeg40Y
+24 abril: PUq63ffL
+
+
+examen:
+- hqd5FukC
+
+
+
+
+
+LISTO:
+-!!REVISAR los trackings updateLive, updateVODAcc...
+-a los examenes poner a la url de typeform un parametro de si es antes o despues del video
+-https://sinergis.typeform.com/to/hqd5FukC#uid=xxxxx&finished=false

@@ -1,0 +1,122 @@
+input LoginInput {
+    username: String!
+    password: String!
+}
+
+input RefreshTokenInput {
+    refresh_token: String
+}
+
+type AuthPayload {
+    status: Boolean
+    access_token: String
+    refresh_token: String
+    expires_in: Int
+    token_type: String
+    user: User
+    message: String
+}
+
+
+type AuthResponse {
+    message: String!
+    status: Boolean
+    location: String
+
+    access_token: String
+    refresh_token: String
+    expires_in: Int
+    token_type: String
+    user: User
+    category: String
+}
+
+
+type RefreshTokenPayload {
+    access_token: String!
+    refresh_token: String!
+    expires_in: Int!
+    token_type: String!
+}
+
+type LogoutResponse {
+    status: String!
+    message: String
+}
+
+type ForgotPasswordResponse {
+    status: String!
+    message: String
+}
+
+type RegisterResponse {
+    #tokens: AuthPayload
+    message: String!
+    status: Int
+
+}
+
+
+type UpdatePasswordResponse {
+    status: String!
+    message: String
+}
+
+enum RegisterStatuses {
+    MUST_VERIFY_EMAIL
+    SUCCESS
+    NOT_LOCALIZATION
+    NOT_NUMERIC
+}
+
+input ForgotPasswordInput {
+    email: String! @rules(apply: [])
+}
+
+
+input NewPasswordWithCodeInput {
+    email: String!
+    token: String!
+    password: String
+    password_confirmation: String!
+}
+
+input RegisterInput {
+    first_name: String!
+    last_name: String
+    email: String!
+    password: String!
+    password_confirmation: String!
+    phone: String
+    area: String
+    country_id: String!
+    country_value: String
+    specialty_text: String
+    specialty_id: String
+    city: String
+    profesional_license_general: String
+    profesional_license_specialty: String
+    company_id: String
+    company_text: String!
+    tblEstados_idEstado1: String!
+    agree: String!
+    idInstitucion: String
+    otraInstitucion: String
+    unidadesMedicas: String
+    idJurisdiccionSanitaria: String
+}
+
+input SocialLoginInput {
+    provider: String! @rules(apply: ["required"])
+    token: String! @rules(apply: ["required"])
+}
+
+input VerifyEmailInput {
+    token: String!
+}
+
+input UpdatePassword {
+    old_password: String!
+    password: String! @rules(apply: ["required", "confirmed", "min:4"])
+    password_confirmation: String!
+}
