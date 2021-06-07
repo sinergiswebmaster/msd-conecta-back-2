@@ -54,6 +54,7 @@ type Mutation {
 
     Login(
         email: String!
+        rank_id: ID!
         #password: String!
     ): AuthResponse! @field(resolver: "Login")
 

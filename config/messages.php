@@ -4,7 +4,8 @@ return [
 
     'login' => [
         'error' => 'El usuario no éxiste',
-        'success' => 'Acceso concedido.'
+        'success' => 'Acceso concedido.',
+        'incorrect_rank' => 'Rango incorrecto'
     ],
 
     'name' => [

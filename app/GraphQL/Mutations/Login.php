@@ -18,10 +18,11 @@ class Login extends BaseAuthResolver
     public function __invoke($_, array $args)
     {
         $email = $args['email'];
+        $rank_id = $args['rank_id'];
 
         $credentials = $this->buildCredentials($args);
 
-        $user = User::select('id', 'name', 'last_name', 'role')->where('email', $email)->first();
+        $user = User::select('id', 'name', 'last_name', 'rank_id')->where('email', $email)->first();
 
         if(!$user) {
 
@@ -29,6 +30,16 @@ class Login extends BaseAuthResolver
                 [
                     'status' => false,
                     'message' => config('messages.login.error'),
+                    'user' => null,
+                ]
+            );
+        }
+
+        if( $user->rank_id !== intval($rank_id) ) {
+            return array_merge(
+                [
+                    'status' => false,
+                    'message' => config('messages.login.incorrect_rank'),
                     'user' => null,
                 ]
             );
